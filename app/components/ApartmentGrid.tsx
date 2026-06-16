@@ -453,7 +453,7 @@ export default function ApartmentGrid({
       </div>
 
       {/* ── Sticky-map + cards two-column layout ── */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[520px_1fr] xl:grid-cols-[560px_1fr]">
 
         {/* Left column — sticky map */}
         <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -572,7 +572,7 @@ export default function ApartmentGrid({
                 </div>
 
                 {/* Cards grid */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {apts.map((apartment) => {
                     const isSelected = mapApartment?.id === apartment.id;
                     return (

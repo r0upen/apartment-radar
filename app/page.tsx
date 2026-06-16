@@ -1,6 +1,9 @@
 import { supabase } from "@/lib/supabase";
 import ApartmentGrid from "./components/ApartmentGrid";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Home() {
   const { data: apartments, error } = await supabase
     .from("apartments")

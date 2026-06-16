@@ -452,88 +452,95 @@ export default function ApartmentGrid({
         </div>
       </div>
 
-      {/* ── Count row + map ── */}
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-slate-500">
-          {visibleApartments.length} listing
-          {visibleApartments.length !== 1 ? "s" : ""}
-          {mapApartment && (
-            <span className="ml-2 text-violet-400">· 1 selected</span>
-          )}
-        </p>
-        {mapApartment && (
-          <button
-            onClick={() => setMapApartment(null)}
-            className="text-xs text-slate-500 transition hover:text-slate-300"
-          >
-            Clear selection
-          </button>
-        )}
-      </div>
+      {/* ── Sticky-map + cards two-column layout ── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
 
-      {/* ── Full-width homepage map ── */}
-      <div className="mb-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-800" style={{ height: "420px" }}>
-        <div className="relative h-full w-full">
-          <iframe
-            key={mapApartment?.id ?? "default"}
-            title="Area map"
-            className="absolute inset-0 h-full w-full"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`}
-          />
+        {/* Left column — sticky map */}
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 h-[360px] lg:h-[calc(100vh-140px)]">
+            <div className="relative h-full w-full">
+              <iframe
+                key={mapApartment?.id ?? "default"}
+                title="Area map"
+                className="absolute inset-0 h-full w-full"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`}
+              />
 
-          {/* Info overlay */}
-          {mapApartment ? (
-            <div className="pointer-events-none absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-transparent px-5 pb-5 pt-16">
-              <div className="flex items-end justify-between gap-4">
-                <div className="min-w-0">
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${sourceBadgeClasses(mapApartment.source)}`}
-                  >
-                    {mapApartment.source ?? "Unknown"}
+              {/* Info overlay */}
+              {mapApartment ? (
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-transparent px-5 pb-5 pt-16">
+                  <div className="flex items-end justify-between gap-4">
+                    <div className="min-w-0">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${sourceBadgeClasses(mapApartment.source)}`}
+                      >
+                        {mapApartment.source ?? "Unknown"}
+                      </span>
+                      <p className="mt-1 truncate text-base font-semibold text-white">
+                        {mapApartment.address}
+                      </p>
+                      {mapApartment.neighborhood && (
+                        <p className="text-sm text-slate-400">
+                          📍 {mapApartment.neighborhood}
+                        </p>
+                      )}
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-2xl font-extrabold text-violet-300">
+                        ${mapApartment.rent.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-slate-400">/mo</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="pointer-events-none absolute inset-0 flex items-end justify-center pb-5">
+                  <span className="rounded-full border border-slate-700/50 bg-slate-900/80 px-4 py-2 text-xs text-slate-400 backdrop-blur-sm">
+                    Click a listing to preview its location
                   </span>
-                  <p className="mt-1 truncate text-base font-semibold text-white">
-                    {mapApartment.address}
-                  </p>
-                  {mapApartment.neighborhood && (
-                    <p className="text-sm text-slate-400">
-                      📍 {mapApartment.neighborhood}
-                    </p>
-                  )}
                 </div>
-                <div className="shrink-0 text-right">
-                  <p className="text-2xl font-extrabold text-violet-300">
-                    ${mapApartment.rent.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-slate-400">/mo</p>
-                </div>
-              </div>
+              )}
+            </div>
+          </div>
+        </aside>
+
+        {/* Right column — count row + cards */}
+        <div className="min-w-0">
+          {/* Count row */}
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm text-slate-500">
+              {visibleApartments.length} listing
+              {visibleApartments.length !== 1 ? "s" : ""}
+              {mapApartment && (
+                <span className="ml-2 text-violet-400">· 1 selected</span>
+              )}
+            </p>
+            {mapApartment && (
+              <button
+                onClick={() => setMapApartment(null)}
+                className="text-xs text-slate-500 transition hover:text-slate-300"
+              >
+                Clear selection
+              </button>
+            )}
+          </div>
+
+          {/* ── Cards grouped by date ── */}
+          {visibleApartments.length === 0 ? (
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-14 text-center">
+              <p className="text-5xl">🏘️</p>
+              <p className="mt-4 text-lg font-semibold text-slate-200">
+                No listings found
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                Try adjusting your filters.
+              </p>
             </div>
           ) : (
-            <div className="pointer-events-none absolute inset-0 flex items-end justify-center pb-5">
-              <span className="rounded-full border border-slate-700/50 bg-slate-900/80 px-4 py-2 text-xs text-slate-400 backdrop-blur-sm">
-                Click a listing below to preview its location
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Cards grouped by date ── */}
-      {visibleApartments.length === 0 ? (
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-14 text-center">
-          <p className="text-5xl">🏘️</p>
-          <p className="mt-4 text-lg font-semibold text-slate-200">
-            No listings found
-          </p>
-          <p className="mt-1 text-sm text-slate-500">
-            Try adjusting your filters.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {groupedApartments.map(({ label, dateKey, apts }) => {
+            <div className="space-y-8">
+              {groupedApartments.map(({ label, dateKey, apts }) => {
             const isToday = label === "New Today";
             return (
               <section key={dateKey}>
@@ -694,8 +701,10 @@ export default function ApartmentGrid({
               </section>
             );
           })}
-        </div>
-      )}
+            </div>
+          )}
+        </div>{/* end right column */}
+      </div>{/* end two-column grid */}
 
       {/* ── Modal ── */}
       {selectedApartment && (

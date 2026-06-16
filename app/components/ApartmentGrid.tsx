@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FavoriteButton from "./FavoriteButton";
 import { supabase } from "@/lib/supabase";
 
@@ -126,9 +126,14 @@ export default function ApartmentGrid({
   const [mapApartment, setMapApartment] = useState<Apartment | null>(null);
   const [selectedApartment, setSelectedApartment] = useState<Apartment | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const notesSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setSaveStatus("idle");
+    if (notesSaveTimerRef.current) {
+      clearTimeout(notesSaveTimerRef.current);
+      notesSaveTimerRef.current = null;
+    }
   }, [selectedApartment?.id]);
 
   async function saveApartmentField(
@@ -142,6 +147,7 @@ export default function ApartmentGrid({
       .update({ [field]: value || null })
       .eq("id", id);
     if (error) {
+      console.error(`Failed to save ${field}:`, error);
       setSaveStatus("error");
     } else {
       setSaveStatus("saved");
@@ -179,12 +185,37 @@ export default function ApartmentGrid({
     };
   }, [selectedApartment]);
 
-  function handleFavoriteChange(id: string, favorite: boolean) {
+  async function handleFavoriteChange(id: string, favorite: boolean) {
+    // Optimistic update — both card grid and open modal reflect the change immediately
     setApartments((prev) =>
-      prev.map((apartment) =>
-        apartment.id === id ? { ...apartment, favorite } : apartment
-      )
+      prev.map((a) => (a.id === id ? { ...a, favorite } : a))
     );
+    setSelectedApartment((prev) =>
+      prev && prev.id === id ? { ...prev, favorite } : prev
+    );
+
+    console.log("[favorite] saving", id, "→", favorite);
+
+    const { error } = await supabase
+      .from("apartments")
+      .update({ favorite })
+      .eq("id", id);
+
+    if (error) {
+      console.error("[favorite] save failed:", error.message, error);
+      // Roll back using functional update so we always invert the correct current value
+      setApartments((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, favorite: !favorite } : a))
+      );
+      setSelectedApartment((prev) =>
+        prev && prev.id === id ? { ...prev, favorite: !favorite } : prev
+      );
+      alert(
+        `Favorite could not be saved.\n\nError: ${error.message}\n\nCheck the browser console (F12 → Console) for details.`
+      );
+    } else {
+      console.log("[favorite] saved ✓", id, "→", favorite);
+    }
   }
 
   function toggleNeighborhood(n: string) {
@@ -586,7 +617,7 @@ export default function ApartmentGrid({
                           <div onClick={(e) => e.stopPropagation()} className="shrink-0">
                             <FavoriteButton
                               apartmentId={apartment.id}
-                              initialFavorite={apartment.favorite ?? false}
+                              favorite={!!apartment.favorite}
                               onFavoriteChange={handleFavoriteChange}
                             />
                           </div>
@@ -892,24 +923,35 @@ export default function ApartmentGrid({
                       value={selectedApartment.notes ?? ""}
                       onChange={(e) => {
                         const val = e.target.value;
+                        const aptId = selectedApartment.id;
                         setSelectedApartment((prev) =>
                           prev ? { ...prev, notes: val } : prev
                         );
                         setApartments((prev) =>
                           prev.map((a) =>
-                            a.id === selectedApartment.id
-                              ? { ...a, notes: val }
-                              : a
+                            a.id === aptId ? { ...a, notes: val } : a
                           )
                         );
+                        // Debounced save — fires even if modal closes before blur
+                        if (notesSaveTimerRef.current)
+                          clearTimeout(notesSaveTimerRef.current);
+                        notesSaveTimerRef.current = setTimeout(() => {
+                          notesSaveTimerRef.current = null;
+                          saveApartmentField(aptId, "notes", val);
+                        }, 1000);
                       }}
-                      onBlur={(e) =>
+                      onBlur={(e) => {
+                        // Immediate save on blur; cancel the debounce
+                        if (notesSaveTimerRef.current) {
+                          clearTimeout(notesSaveTimerRef.current);
+                          notesSaveTimerRef.current = null;
+                        }
                         saveApartmentField(
                           selectedApartment.id,
                           "notes",
                           e.target.value
-                        )
-                      }
+                        );
+                      }}
                       placeholder="Add notes about this apartment…"
                       rows={3}
                       className="w-full resize-none rounded-xl border border-slate-700/60 bg-slate-800/60 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-violet-500"
@@ -921,13 +963,8 @@ export default function ApartmentGrid({
                     <div className="flex items-center gap-2">
                       <FavoriteButton
                         apartmentId={selectedApartment.id}
-                        initialFavorite={selectedApartment.favorite ?? false}
-                        onFavoriteChange={(id, fav) => {
-                          handleFavoriteChange(id, fav);
-                          setSelectedApartment((prev) =>
-                            prev ? { ...prev, favorite: fav } : prev
-                          );
-                        }}
+                        favorite={!!selectedApartment.favorite}
+                        onFavoriteChange={handleFavoriteChange}
                       />
                       <span className="text-sm text-slate-400">
                         {selectedApartment.favorite ? "Saved" : "Save"}

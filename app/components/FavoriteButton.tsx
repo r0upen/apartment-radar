@@ -1,51 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
-
 type FavoriteButtonProps = {
   apartmentId: string;
-  initialFavorite: boolean;
-  onFavoriteChange?: (id: string, favorite: boolean) => void;
+  favorite: boolean;
+  onFavoriteChange: (id: string, favorite: boolean) => void;
 };
 
 export default function FavoriteButton({
   apartmentId,
-  initialFavorite,
+  favorite,
   onFavoriteChange,
 }: FavoriteButtonProps) {
-  const [favorite, setFavorite] = useState(initialFavorite);
-  const [loading, setLoading] = useState(false);
-
-  async function toggleFavorite() {
-    if (loading) return;
-
-    const newValue = !favorite;
-    setFavorite(newValue);
-    onFavoriteChange?.(apartmentId, newValue);
-    setLoading(true);
-
-    const { error } = await supabase
-      .from("apartments")
-      .update({ favorite: newValue })
-      .eq("id", apartmentId);
-
-    if (error) {
-      console.error(error);
-      setFavorite(!newValue);
-      onFavoriteChange?.(apartmentId, !newValue);
-      alert("Failed to update favorite.");
-    }
-
-    setLoading(false);
-  }
-
   return (
     <button
-      onClick={toggleFavorite}
-      disabled={loading}
-      className="text-3xl"
-      aria-label="Toggle favorite"
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onFavoriteChange(apartmentId, !favorite);
+      }}
+      className={`text-3xl transition ${
+        favorite ? "text-pink-400" : "text-white hover:text-pink-300"
+      }`}
+      aria-label={favorite ? "Remove from favorites" : "Save to favorites"}
     >
       {favorite ? "♥" : "♡"}
     </button>

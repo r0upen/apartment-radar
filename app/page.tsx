@@ -44,7 +44,7 @@ export default async function Home() {
             Live Listings
           </p>
           <h1 className="text-3xl font-bold text-white">
-            Naryne&rsquo;s Apartment Hunt
+            Apartment Hunt
           </h1>
           <p className="mt-2 text-slate-400">
             {apartments?.length ?? 0} apartments scraped from Zillow and

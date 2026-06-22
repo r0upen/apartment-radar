@@ -34,66 +34,63 @@ type SortOption = "newest" | "rent-low" | "rent-high";
 
 function sourceBadgeClasses(source: string | null) {
   if (source === "Zillow")
-    return "border border-amber-500/30 bg-amber-500/10 text-amber-400";
+    return "border border-blue-500/30 bg-blue-500/10 text-blue-400";
   if (source === "StreetEasy")
-    return "border border-sky-500/30 bg-sky-500/10 text-sky-400";
+    return "border border-orange-500/30 bg-orange-500/10 text-orange-400";
   if (source === "RentHop")
-    return "border border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+    return "border border-cyan-500/30 bg-cyan-500/10 text-cyan-400";
   return "border border-slate-700 bg-slate-800 text-slate-400";
+}
+
+// All date helpers use UTC methods so the server (UTC) and browser agree,
+// preventing Next.js hydration mismatches caused by timezone differences.
+
+function utcDateKey(d: Date): string {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 function isNew(createdAt: string | null): boolean {
   if (!createdAt) return false;
-  const date = new Date(createdAt);
-  const today = new Date();
-  return (
-    date.getFullYear() === today.getFullYear() &&
-    date.getMonth() === today.getMonth() &&
-    date.getDate() === today.getDate()
-  );
+  return utcDateKey(new Date(createdAt)) === utcDateKey(new Date());
 }
 
 function formatAddedDate(createdAt: string | null): string | null {
   if (!createdAt) return null;
-  const date = new Date(createdAt);
   if (isNew(createdAt)) return "Added today";
+  const d = new Date(createdAt);
   return (
     "Added " +
-    date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    })
   );
 }
 
 function getDateGroupKey(createdAt: string | null): string {
   if (!createdAt) return "unknown";
-  const d = new Date(createdAt);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return utcDateKey(new Date(createdAt));
 }
 
 function formatGroupLabel(dateKey: string): string {
   if (dateKey === "unknown") return "Unknown Date";
+  const now = new Date();
+  const todayKey = utcDateKey(now);
+  const yesterdayDate = new Date(now);
+  yesterdayDate.setUTCDate(now.getUTCDate() - 1);
+  const yesterdayKey = utcDateKey(yesterdayDate);
+  if (dateKey === todayKey) return "New Today";
+  if (dateKey === yesterdayKey) return "Yesterday";
   const [y, mo, day] = dateKey.split("-").map(Number);
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  if (
-    y === today.getFullYear() &&
-    mo === today.getMonth() + 1 &&
-    day === today.getDate()
-  )
-    return "New Today";
-  if (
-    y === yesterday.getFullYear() &&
-    mo === yesterday.getMonth() + 1 &&
-    day === yesterday.getDate()
-  )
-    return "Yesterday";
-  return new Date(y, mo - 1, day).toLocaleDateString("en-US", {
+  return new Date(Date.UTC(y, mo - 1, day)).toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 
@@ -735,11 +732,11 @@ export default function ApartmentGrid({
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ${
                       selectedApartment.source === "Zillow"
-                        ? "bg-amber-400/20 text-amber-200"
+                        ? "bg-blue-400/20 text-blue-200"
                         : selectedApartment.source === "StreetEasy"
-                          ? "bg-sky-300/20 text-sky-100"
+                          ? "bg-orange-400/20 text-orange-200"
                           : selectedApartment.source === "RentHop"
-                            ? "bg-emerald-400/20 text-emerald-200"
+                            ? "bg-cyan-400/20 text-cyan-200"
                             : "bg-white/20 text-white/70"
                     }`}
                   >

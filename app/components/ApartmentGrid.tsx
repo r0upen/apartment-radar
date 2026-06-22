@@ -37,6 +37,8 @@ function sourceBadgeClasses(source: string | null) {
     return "border border-amber-500/30 bg-amber-500/10 text-amber-400";
   if (source === "StreetEasy")
     return "border border-sky-500/30 bg-sky-500/10 text-sky-400";
+  if (source === "RentHop")
+    return "border border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
   return "border border-slate-700 bg-slate-800 text-slate-400";
 }
 
@@ -340,6 +342,7 @@ export default function ApartmentGrid({
             <option value="all">All Sources</option>
             <option value="Zillow">Zillow</option>
             <option value="StreetEasy">StreetEasy</option>
+            <option value="RentHop">RentHop</option>
           </select>
           <input
             value={maxRent}

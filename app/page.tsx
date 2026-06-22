@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import ApartmentGrid from "./components/ApartmentGrid";
 
@@ -25,7 +24,7 @@ export default async function Home() {
       <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           {/* Logo — clicking goes to homepage */}
-          <Link href="/" className="group flex items-center gap-4">
+          <a href="/" className="group flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 via-indigo-500 to-sky-500 shadow-lg shadow-violet-500/30 transition group-hover:shadow-violet-500/50">
               <svg
                 viewBox="0 0 24 24"
@@ -43,15 +42,21 @@ export default async function Home() {
                 <path d="M17.66 17.66l1.41 1.41" />
               </svg>
             </div>
-            <div className="flex flex-col gap-0.5 leading-none">
+            <div className="flex flex-col gap-1 leading-none">
               <span className="text-xl font-extrabold tracking-tight text-white transition group-hover:text-violet-300">
                 Apartment Radar
               </span>
               <span className="text-xs font-medium tracking-wide text-slate-500">
-                AI-Powered Apartment Finder
+                Naryne&rsquo;s AI-Powered Apartment Finder
+              </span>
+              <span className="text-xs tracking-wide text-slate-600">
+                {apartments?.length ?? 0} listings from{" "}
+                <span className="text-blue-400">Zillow</span>,{" "}
+                <span className="text-orange-400">StreetEasy</span> &amp;{" "}
+                <span className="text-cyan-400">RentHop</span>
               </span>
             </div>
-          </Link>
+          </a>
 
           {/* Live indicator */}
           <div className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3.5 py-2">
@@ -63,21 +68,6 @@ export default async function Home() {
           </div>
         </div>
       </header>
-
-      {/* Page title bar — compact, like Zillow's search results header */}
-      <div className="border-b border-slate-800/60 bg-slate-950 px-6 py-4">
-        <div className="mx-auto max-w-7xl flex items-center justify-between gap-4">
-          <h1 className="text-lg font-semibold text-white">
-            Apartment Hunt
-          </h1>
-          <p className="text-sm text-slate-500">
-            {apartments?.length ?? 0} listings from{" "}
-            <span className="text-blue-400">Zillow</span>,{" "}
-            <span className="text-orange-400">StreetEasy</span> &{" "}
-            <span className="text-cyan-400">RentHop</span>
-          </p>
-        </div>
-      </div>
 
       {/* Content */}
       <main className="mx-auto max-w-7xl px-6 py-8">

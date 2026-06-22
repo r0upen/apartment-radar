@@ -343,6 +343,7 @@ export default function ApartmentGrid({
             <option value="Zillow">Zillow</option>
             <option value="StreetEasy">StreetEasy</option>
             <option value="RentHop">RentHop</option>
+            <option value="RentHop">RentHop</option>
           </select>
           <input
             value={maxRent}
@@ -738,7 +739,9 @@ export default function ApartmentGrid({
                         ? "bg-amber-400/20 text-amber-200"
                         : selectedApartment.source === "StreetEasy"
                           ? "bg-sky-300/20 text-sky-100"
-                          : "bg-white/20 text-white/70"
+                          : selectedApartment.source === "RentHop"
+                            ? "bg-emerald-400/20 text-emerald-200"
+                            : "bg-white/20 text-white/70"
                     }`}
                   >
                     {selectedApartment.source ?? "Unknown"}

@@ -343,7 +343,6 @@ export default function ApartmentGrid({
             <option value="Zillow">Zillow</option>
             <option value="StreetEasy">StreetEasy</option>
             <option value="RentHop">RentHop</option>
-            <option value="RentHop">RentHop</option>
           </select>
           <input
             value={maxRent}

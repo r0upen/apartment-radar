@@ -39,6 +39,10 @@ function sourceBadgeClasses(source: string | null) {
     return "border border-orange-500/30 bg-orange-500/10 text-orange-400";
   if (source === "RentHop")
     return "border border-cyan-500/30 bg-cyan-500/10 text-cyan-400";
+  if (source === "Trulia")
+    return "border border-teal-500/30 bg-teal-500/10 text-teal-400";
+  if (source === "Compass")
+    return "border border-slate-400/40 bg-slate-900 text-white";
   return "border border-slate-700 bg-slate-800 text-slate-400";
 }
 
@@ -340,6 +344,8 @@ export default function ApartmentGrid({
             <option value="Zillow">Zillow</option>
             <option value="StreetEasy">StreetEasy</option>
             <option value="RentHop">RentHop</option>
+            <option value="Trulia">Trulia</option>
+            <option value="Compass">Compass</option>
           </select>
           <input
             value={maxRent}
@@ -737,7 +743,11 @@ export default function ApartmentGrid({
                           ? "bg-orange-400/20 text-orange-200"
                           : selectedApartment.source === "RentHop"
                             ? "bg-cyan-400/20 text-cyan-200"
-                            : "bg-white/20 text-white/70"
+                            : selectedApartment.source === "Trulia"
+                              ? "bg-teal-400/20 text-teal-200"
+                              : selectedApartment.source === "Compass"
+                                ? "bg-slate-900 text-white border border-slate-400/40"
+                                : "bg-white/20 text-white/70"
                     }`}
                   >
                     {selectedApartment.source ?? "Unknown"}

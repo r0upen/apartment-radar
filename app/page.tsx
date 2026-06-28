@@ -52,8 +52,10 @@ export default async function Home() {
               <span className="text-xs tracking-wide text-slate-600">
                 {apartments?.length ?? 0} listings from{" "}
                 <span className="text-blue-400">Zillow</span>,{" "}
-                <span className="text-orange-400">StreetEasy</span> &amp;{" "}
-                <span className="text-cyan-400">RentHop</span>
+                <span className="text-orange-400">StreetEasy</span>,{" "}
+                <span className="text-cyan-400">RentHop</span>,{" "}
+                <span className="text-teal-400">Trulia</span> &amp;{" "}
+                <span className="text-white">Compass</span>
               </span>
             </div>
           </a>

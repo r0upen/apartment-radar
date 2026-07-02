@@ -135,6 +135,7 @@ export default function ApartmentGrid({
   const [mapApartment, setMapApartment] = useState<Apartment | null>(null);
   const [selectedApartment, setSelectedApartment] = useState<Apartment | null>(null);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [neighborhoodsOpen, setNeighborhoodsOpen] = useState(false);
   const notesSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -382,46 +383,76 @@ export default function ApartmentGrid({
           </select>
         </div>
 
-        {/* Neighborhood chips — multi-select */}
+        {/* Neighborhood chips — multi-select, collapsible */}
         <div className="mt-5">
-          <div className="mb-3 flex items-center gap-2">
+          {/* Collapse toggle header */}
+          <button
+            type="button"
+            onClick={() => setNeighborhoodsOpen((o) => !o)}
+            className="flex w-full items-center gap-2 rounded-lg py-0.5 text-left transition hover:opacity-80"
+          >
             <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
               Neighborhood
             </p>
-            {selectedNeighborhoods.length > 0 && (
+            {/* When collapsed and neighborhoods are selected, show them inline */}
+            {!neighborhoodsOpen && selectedNeighborhoods.length > 0 && (
+              <div className="flex min-w-0 flex-1 flex-wrap gap-1">
+                {selectedNeighborhoods.map((n) => (
+                  <span
+                    key={n}
+                    className="rounded-full bg-violet-600/20 px-2 py-0.5 text-[10px] font-bold text-violet-400"
+                  >
+                    {n}
+                  </span>
+                ))}
+              </div>
+            )}
+            {/* When expanded, show count badge */}
+            {neighborhoodsOpen && selectedNeighborhoods.length > 0 && (
               <span className="rounded-full bg-violet-600/20 px-2 py-0.5 text-[10px] font-bold text-violet-400">
                 {selectedNeighborhoods.length}
               </span>
             )}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setSelectedNeighborhoods([])}
-              className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-                selectedNeighborhoods.length === 0
-                  ? "border-violet-500 bg-violet-600 text-white shadow-md"
-                  : "border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-700"
-              }`}
+            {/* Chevron */}
+            <span
+              className="ml-auto text-slate-500 transition-transform duration-200"
+              style={{ transform: neighborhoodsOpen ? "rotate(180deg)" : "rotate(0deg)" }}
             >
-              All
-            </button>
-            {neighborhoods.map((neighborhood) => {
-              const active = selectedNeighborhoods.includes(neighborhood);
-              return (
-                <button
-                  key={neighborhood}
-                  onClick={() => toggleNeighborhood(neighborhood)}
-                  className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
-                    active
-                      ? "border-violet-500 bg-violet-600 text-white shadow-md"
-                      : "border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-700"
-                  }`}
-                >
-                  {neighborhood}
-                </button>
-              );
-            })}
-          </div>
+              ▾
+            </span>
+          </button>
+
+          {/* Chip list — shown only when expanded */}
+          {neighborhoodsOpen && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedNeighborhoods([])}
+                className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                  selectedNeighborhoods.length === 0
+                    ? "border-violet-500 bg-violet-600 text-white shadow-md"
+                    : "border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-700"
+                }`}
+              >
+                All
+              </button>
+              {neighborhoods.map((neighborhood) => {
+                const active = selectedNeighborhoods.includes(neighborhood);
+                return (
+                  <button
+                    key={neighborhood}
+                    onClick={() => toggleNeighborhood(neighborhood)}
+                    className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                      active
+                        ? "border-violet-500 bg-violet-600 text-white shadow-md"
+                        : "border-slate-700 bg-slate-800 text-slate-300 hover:border-slate-600 hover:bg-slate-700"
+                    }`}
+                  >
+                    {neighborhood}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Bottom row */}
@@ -468,7 +499,7 @@ export default function ApartmentGrid({
       <div className="grid grid-cols-1 gap-4 mobile-landscape:grid-cols-[260px_1fr] lg:grid-cols-[520px_1fr] lg:gap-6 xl:grid-cols-[560px_1fr]">
 
         {/* Left column — sticky map */}
-        <aside className="mobile-landscape:sticky mobile-landscape:top-24 mobile-landscape:self-start lg:sticky lg:top-24 lg:self-start">
+        <aside className="sticky top-24 self-start z-10 mobile-landscape:top-0 lg:top-24">
           <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 h-[360px] mobile-landscape:h-[calc(100vh-96px)] lg:h-[calc(100vh-140px)]">
             <div className="relative h-full w-full">
               <iframe
@@ -739,16 +770,15 @@ export default function ApartmentGrid({
           {/* Centering wrapper — clicking outside card closes */}
           <div
             onClick={closeModal}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 mobile-landscape:p-2"
           >
             {/* Modal card */}
             <div
               onClick={(e) => e.stopPropagation()}
-              className="relative flex w-full max-w-6xl flex-col overflow-hidden rounded-3xl bg-slate-900 shadow-2xl"
-              style={{ maxHeight: "92vh" }}
+              className="relative flex w-full max-w-6xl flex-col overflow-hidden rounded-3xl bg-slate-900 shadow-2xl max-h-[92vh] mobile-landscape:max-h-[98dvh] mobile-landscape:rounded-2xl"
             >
               {/* Gradient header */}
-              <div className="relative shrink-0 bg-gradient-to-r from-violet-700 via-indigo-600 to-sky-600 px-7 py-6">
+              <div className="relative shrink-0 bg-gradient-to-r from-violet-700 via-indigo-600 to-sky-600 px-7 py-6 mobile-landscape:px-5 mobile-landscape:py-3">
                 <div className="pr-12">
                   <span
                     className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest ${
@@ -767,11 +797,11 @@ export default function ApartmentGrid({
                   >
                     {selectedApartment.source ?? "Unknown"}
                   </span>
-                  <h2 className="mt-2 text-2xl font-bold leading-snug text-white">
+                  <h2 className="mt-2 text-2xl font-bold leading-snug text-white mobile-landscape:mt-1 mobile-landscape:text-base">
                     {selectedApartment.address}
                   </h2>
                   {selectedApartment.neighborhood && (
-                    <p className="mt-1 text-sm text-indigo-200">
+                    <p className="mt-1 text-sm text-indigo-200 mobile-landscape:hidden">
                       📍 {selectedApartment.neighborhood}
                     </p>
                   )}
@@ -779,14 +809,14 @@ export default function ApartmentGrid({
                 <button
                   onClick={closeModal}
                   aria-label="Close modal"
-                  className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white transition hover:bg-white/25"
+                  className="fixed right-[max(1rem,env(safe-area-inset-right))] top-[max(1rem,env(safe-area-inset-top))] z-[60] flex h-10 w-10 items-center justify-center rounded-full bg-slate-700/90 text-white shadow-lg backdrop-blur-sm transition hover:bg-slate-600 sm:absolute sm:right-5 sm:top-5 sm:z-auto sm:bg-white/15 sm:shadow-none sm:backdrop-blur-none sm:hover:bg-white/25"
                 >
                   ✕
                 </button>
               </div>
 
               {/* Body: details left, map right */}
-              <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden md:grid-cols-[380px_1fr]">
+              <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden mobile-landscape:grid-cols-[240px_1fr] md:grid-cols-[380px_1fr]">
                 {/* Left — listing details */}
                 <div className="flex flex-col gap-5 overflow-y-auto border-slate-800 p-6 md:border-r">
                   {/* Rent hero */}
@@ -1027,7 +1057,7 @@ export default function ApartmentGrid({
                 </div>
 
                 {/* Right — Google Maps embed */}
-                <div className="relative min-h-72 md:min-h-0">
+                <div className="relative min-h-72 mobile-landscape:min-h-0 md:min-h-0">
                   <iframe
                     title="Apartment location map"
                     className="absolute inset-0 h-full w-full"

@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import ApartmentGrid from "./components/ApartmentGrid";
+import SiteHeader from "./components/SiteHeader";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -20,8 +21,8 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
-      {/* Sticky nav */}
-      <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/95 backdrop-blur-md">
+      {/* Sticky nav — auto-hides in mobile landscape while scrolling down */}
+      <SiteHeader>
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           {/* Logo — clicking goes to homepage */}
           <a href="/" className="group flex items-center gap-4">
@@ -69,7 +70,7 @@ export default async function Home() {
             <span className="text-xs font-semibold text-emerald-400">Live</span>
           </div>
         </div>
-      </header>
+      </SiteHeader>
 
       {/* Content */}
       <main className="mx-auto max-w-7xl px-6 py-8">

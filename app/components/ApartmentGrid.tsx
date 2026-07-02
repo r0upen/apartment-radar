@@ -32,8 +32,8 @@ const DECISION_OPTIONS = [
 
 type SortOption = "newest" | "rent-low" | "rent-high";
 
-function safeListingUrl(url: string | null | undefined): string {
-  if (!url) return "#";
+function resolvedListingUrl(url: string | null | undefined): string | null {
+  if (!url || !url.trim()) return null;
   if (/^https?:\/\//i.test(url)) return url;
   return "https://" + url;
 }
@@ -465,11 +465,11 @@ export default function ApartmentGrid({
       </div>
 
       {/* ── Sticky-map + cards two-column layout ── */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[520px_1fr] xl:grid-cols-[560px_1fr]">
+      <div className="grid grid-cols-1 gap-4 mobile-landscape:grid-cols-[260px_1fr] lg:grid-cols-[520px_1fr] lg:gap-6 xl:grid-cols-[560px_1fr]">
 
         {/* Left column — sticky map */}
-        <aside className="lg:sticky lg:top-24 lg:self-start">
-          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 h-[360px] lg:h-[calc(100vh-140px)]">
+        <aside className="mobile-landscape:sticky mobile-landscape:top-24 mobile-landscape:self-start lg:sticky lg:top-24 lg:self-start">
+          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 h-[360px] mobile-landscape:h-[calc(100vh-96px)] lg:h-[calc(100vh-140px)]">
             <div className="relative h-full w-full">
               <iframe
                 key={mapApartment?.id ?? "default"}
@@ -584,7 +584,7 @@ export default function ApartmentGrid({
                 </div>
 
                 {/* Cards grid */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 mobile-landscape:grid-cols-1 md:grid-cols-2">
                   {apts.map((apartment) => {
                     const isSelected = mapApartment?.id === apartment.id;
                     return (
@@ -696,14 +696,23 @@ export default function ApartmentGrid({
                             >
                               Details
                             </button>
-                            <a
-                              href={safeListingUrl(apartment.listing_url)}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="rounded-xl bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-500"
-                            >
-                              View Listing
-                            </a>
+                            {resolvedListingUrl(apartment.listing_url) ? (
+                              <a
+                                href={resolvedListingUrl(apartment.listing_url)!}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="rounded-xl bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-500"
+                              >
+                                View Listing
+                              </a>
+                            ) : (
+                              <span
+                                title="Listing URL not available for this source"
+                                className="cursor-not-allowed rounded-xl bg-slate-700 px-4 py-1.5 text-xs font-semibold text-slate-500"
+                              >
+                                No Link
+                              </span>
+                            )}
                           </div>
                         </div>
                       </article>
@@ -997,14 +1006,23 @@ export default function ApartmentGrid({
                         {selectedApartment.favorite ? "Saved" : "Save"}
                       </span>
                     </div>
-                    <a
-                      href={safeListingUrl(selectedApartment.listing_url)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:from-violet-500 hover:to-indigo-500"
-                    >
-                      View Listing ↗
-                    </a>
+                    {resolvedListingUrl(selectedApartment.listing_url) ? (
+                      <a
+                        href={resolvedListingUrl(selectedApartment.listing_url)!}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:from-violet-500 hover:to-indigo-500"
+                      >
+                        View Listing ↗
+                      </a>
+                    ) : (
+                      <span
+                        title="Listing URL not available — fix the ingestion pipeline to capture this URL"
+                        className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-xl bg-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-500"
+                      >
+                        No Link Available
+                      </span>
+                    )}
                   </div>
                 </div>
 

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Custom variant: phones and small tablets held in landscape orientation.
+   Triggers below the lg breakpoint (1024 px) so desktop is never affected. */
+@custom-variant mobile-landscape (@media (max-width: 1023px) and (orientation: landscape));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

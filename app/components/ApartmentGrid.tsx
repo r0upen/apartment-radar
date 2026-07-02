@@ -104,6 +104,19 @@ function formatGroupLabel(dateKey: string): string {
   });
 }
 
+/** Returns false for null/empty addresses and known placeholder strings. */
+const UNDISCLOSED_PATTERNS = [
+  "address not disclosed",
+  "undisclosed",
+  "address unavailable",
+  "address withheld",
+];
+function isValidAddress(address: string | null | undefined): boolean {
+  if (!address || !address.trim()) return false;
+  const lower = address.trim().toLowerCase();
+  return !UNDISCLOSED_PATTERNS.some((p) => lower.includes(p));
+}
+
 function decisionBadgeClasses(status: string | null): string | null {
   switch (status) {
     case "Interested":
@@ -247,6 +260,7 @@ export default function ApartmentGrid({
   const neighborhoods = useMemo(() => {
     const uniqueNeighborhoods = new Set(
       apartments
+        .filter((a) => isValidAddress(a.address))
         .map((apartment) => apartment.neighborhood)
         .filter(Boolean) as string[]
     );
@@ -259,6 +273,9 @@ export default function ApartmentGrid({
 
     return apartments
       .filter((apartment) => {
+        // Strip listings with null, empty, or placeholder addresses
+        if (!isValidAddress(apartment.address)) return false;
+
         const matchesSearch =
           normalizedSearch.length === 0 ||
           apartment.address.toLowerCase().includes(normalizedSearch) ||

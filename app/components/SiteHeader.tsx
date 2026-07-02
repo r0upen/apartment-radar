@@ -59,7 +59,11 @@ export default function SiteHeader({
   return (
     <header
       className={[
+        // Desktop + landscape: sticky so it stays visible / can hide on scroll.
+        // Portrait mobile: relative (non-sticky) so it scrolls away and the map
+        // can become the top-most visible element.
         "sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/95 backdrop-blur-md",
+        "mobile-portrait:relative mobile-portrait:top-auto",
         "transition-transform duration-200 ease-in-out",
         hidden ? "-translate-y-full" : "translate-y-0",
       ].join(" ")}

@@ -499,8 +499,11 @@ export default function ApartmentGrid({
       <div className="grid grid-cols-1 gap-4 mobile-landscape:grid-cols-[260px_1fr] lg:grid-cols-[520px_1fr] lg:gap-6 xl:grid-cols-[560px_1fr]">
 
         {/* Left column — sticky map */}
-        <aside className="sticky top-24 self-start z-10 mobile-landscape:top-0 lg:top-24">
-          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 h-[360px] mobile-landscape:h-[calc(100vh-96px)] lg:h-[calc(100vh-140px)]">
+        {/* Portrait: top-0 because the header is non-sticky and scrolls away.
+             Landscape: top-0 because the landscape header auto-hides.
+             Desktop: top-24 to sit below the always-visible sticky header. */}
+        <aside className="sticky top-24 self-start z-10 mobile-portrait:top-0 mobile-landscape:top-0 lg:top-24">
+          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-800 h-[360px] mobile-portrait:h-[220px] mobile-landscape:h-[calc(100vh-96px)] lg:h-[calc(100vh-140px)]">
             <div className="relative h-full w-full">
               <iframe
                 key={mapApartment?.id ?? "default"}

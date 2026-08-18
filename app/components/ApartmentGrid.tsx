@@ -341,13 +341,16 @@ export default function ApartmentGrid({
     <>
       {/* ── Filter panel ── */}
       <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search address, neighborhood, agent…"
-            className="sm:col-span-2 rounded-xl border border-slate-700/60 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-violet-500"
-          />
+        {/* Row 1 — search bar */}
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search address, neighborhood, agent…"
+          className="mb-3 w-full rounded-xl border border-slate-700/60 bg-slate-950 px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-violet-500"
+        />
+
+        {/* Row 2 — four filter controls always on one line */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <select
             value={source}
             onChange={(event) => setSource(event.target.value)}

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { isValidAddress } from "@/lib/addressUtils";
 import ApartmentGrid from "./components/ApartmentGrid";
 import SiteHeader from "./components/SiteHeader";
 
@@ -6,10 +7,14 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function Home() {
-  const { data: apartments, error } = await supabase
+  const { data: raw, error } = await supabase
     .from("apartments")
     .select("*")
     .order("created_at", { ascending: false });
+
+  // Strip listings with null, empty, or placeholder addresses before
+  // they reach either the header count or the grid component.
+  const apartments = raw?.filter((a) => isValidAddress(a.address)) ?? [];
 
   if (error) {
     return (
@@ -51,7 +56,7 @@ export default async function Home() {
                 Naryne&rsquo;s AI-Powered Apartment Finder
               </span>
               <span className="text-xs tracking-wide text-slate-600">
-                {apartments?.length ?? 0} listings from{" "}
+                {apartments.length} listings from{" "}
                 <span className="text-blue-400">Zillow</span>,{" "}
                 <span className="text-orange-400">StreetEasy</span>,{" "}
                 <span className="text-cyan-400">RentHop</span>,{" "}
@@ -74,7 +79,7 @@ export default async function Home() {
 
       {/* Content */}
       <main className="mx-auto max-w-7xl px-6 py-8">
-        <ApartmentGrid apartments={apartments ?? []} />
+        <ApartmentGrid apartments={apartments} />
       </main>
     </div>
   );

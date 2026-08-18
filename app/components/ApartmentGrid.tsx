@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import FavoriteButton from "./FavoriteButton";
 import { supabase } from "@/lib/supabase";
+import { isValidAddress } from "@/lib/addressUtils";
 
 type Apartment = {
   id: string;
@@ -104,18 +105,6 @@ function formatGroupLabel(dateKey: string): string {
   });
 }
 
-/** Returns false for null/empty addresses and known placeholder strings. */
-const UNDISCLOSED_PATTERNS = [
-  "address not disclosed",
-  "undisclosed",
-  "address unavailable",
-  "address withheld",
-];
-function isValidAddress(address: string | null | undefined): boolean {
-  if (!address || !address.trim()) return false;
-  const lower = address.trim().toLowerCase();
-  return !UNDISCLOSED_PATTERNS.some((p) => lower.includes(p));
-}
 
 function decisionBadgeClasses(status: string | null): string | null {
   switch (status) {
